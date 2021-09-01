@@ -46,4 +46,15 @@ export class BookService {
   deleteBook(bookTitle: string): void {
     this.bookStorage.delete(bookTitle);
   }
+
+  searchByAuthorAndTitle(term: string): Book[] {
+    const escapedTerm = term.toLowerCase().trim();
+
+    return this.getAllBooks().filter((book) => {
+      return (
+        book.title.toLowerCase().includes(escapedTerm) ||
+        book.author.toLowerCase().includes(escapedTerm)
+      );
+    });
+  }
 }
