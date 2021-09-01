@@ -1,7 +1,39 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { BookService } from './book.service';
+import { Book } from './Book';
 
-@Controller()
+@Controller('/books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
+
+  @Get()
+  public getAllBooks(@Query('author') author: string): Book[] {
+    return author
+      ? this.bookService.getBooksOf(author)
+      : this.bookService.getAllBooks();
+  }
+
+  @Post()
+  public createBook(@Body() bookToCreate: Book): Book {
+    this.bookService.addBook(bookToCreate);
+    return this.bookService.getBook(bookToCreate.title);
+  }
+
+  @Get(':title')
+  public getBookWithTitle(@Param('title') bookTitle: string): Book {
+    return this.bookService.getBook(bookTitle);
+  }
+
+  @Delete(':title')
+  public deleteBook(@Param('title') bookTitle: string): void {
+    return this.bookService.deleteBook(bookTitle);
+  }
 }

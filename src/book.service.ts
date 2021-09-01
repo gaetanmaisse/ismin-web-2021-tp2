@@ -1,4 +1,49 @@
 import { Injectable } from '@nestjs/common';
+import { Book } from './Book';
 
 @Injectable()
-export class BookService {}
+export class BookService {
+  private readonly bookStorage = new Map<string, Book>();
+
+  addBook(book: Book): void {
+    this.bookStorage.set(book.title, book);
+  }
+
+  getBook(name: string): Book {
+    const foundBook = this.bookStorage.get(name);
+
+    if (!foundBook) {
+      throw new Error(`Not book found with name ${name}`);
+    }
+
+    return foundBook;
+  }
+
+  getBooksOf(author: string): Book[] {
+    return this.getAllBooks().filter((book) => {
+      return book.author === author;
+    });
+  }
+
+  getAllBooks(): Book[] {
+    return Array.from(this.bookStorage.values()).sort((book1, book2) =>
+      book1.title.localeCompare(book2.title),
+    );
+  }
+
+  getTotalNumberOfBooks(): number {
+    return this.bookStorage.size;
+  }
+
+  getBooksPublishedBefore(aDate: string | Date): Book[] {
+    const dateCriterion = typeof aDate === 'string' ? new Date(aDate) : aDate;
+
+    return this.getAllBooks().filter(
+      (book) => book.date.getTime() <= dateCriterion.getTime(),
+    );
+  }
+
+  deleteBook(bookTitle: string): void {
+    this.bookStorage.delete(bookTitle);
+  }
+}
